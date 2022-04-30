@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { observer } from 'mobx-react-lite';
+import React, { useContext, useEffect } from 'react';
+import { Context } from '.';
+import AddAnnouncement from './components/announcement/AddAnnouncement';
+import ListAnnouncement from './components/announcement/ListAnnouncement';
+import LoginForm from './components/authentication/LoginForm';
+import RegisrationForm from './components/authentication/Registration';
 
-function App() {
+
+const App: React.FC = () => {
+  const {store} = useContext(Context)
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      store.checkAuth()
+    }
+  }, [])
+
+  if (!store.isAuth) {
+      return <><LoginForm /><br/><RegisrationForm /></>
+  }
+
+  if (store.isLoading) {
+    return <div>Загрузка...</div>
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ListAnnouncement />
+      <AddAnnouncement />
+      <button onClick={() => store.logout()}>Выйти</button>
     </div>
   );
 }
 
-export default App;
+export default observer(App);
